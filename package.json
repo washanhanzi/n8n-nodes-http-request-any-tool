@@ -1,19 +1,19 @@
 {
-  "name": "n8n-nodes-<...>",
-  "version": "0.1.0",
-  "description": "",
+  "name": "n8n-nodes-http-request-any-tool",
+  "version": "0.1.2",
+  "description": "Custom HTTP Request tool node that accepts any default parameter values.",
   "keywords": [
     "n8n-community-node-package"
   ],
   "license": "MIT",
   "homepage": "",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "Custom Nodes Team",
+    "email": "nodes@example.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/<...>/n8n-nodes-<...>.git"
+    "url": "https://github.com/example/n8n-nodes-http-request-any-tool.git"
   },
   "engines": {
     "node": ">=20.15"
@@ -32,16 +32,24 @@
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
-    "credentials": [
-      "dist/credentials/ExampleCredentialsApi.credentials.js",
-      "dist/credentials/HttpBinApi.credentials.js"
-    ],
+    "credentials": [],
     "nodes": [
-      "dist/nodes/ExampleNode/ExampleNode.node.js",
-      "dist/nodes/HttpBin/HttpBin.node.js"
+      "dist/nodes/ToolHttpRequestAny/ToolHttpRequestAny.node.js"
     ]
   },
+  "dependencies": {
+    "@langchain/core": "^0.2.32",
+    "@mozilla/readability": "^0.5.0",
+    "cheerio": "^1.0.0-rc.12",
+    "html-to-text": "^9.0.5",
+    "jsdom": "^24.0.0",
+    "lodash": "^4.17.21",
+    "zod": "^3.23.8"
+  },
   "devDependencies": {
+    "@types/html-to-text": "^9.0.4",
+    "@types/jsdom": "^21.1.7",
+    "@types/lodash": "^4.17.20",
     "@typescript-eslint/parser": "~8.32.0",
     "eslint": "^8.57.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
