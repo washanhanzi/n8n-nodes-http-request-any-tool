@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-http-request-any-tool",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Custom HTTP Request tool node that accepts any default parameter values.",
   "keywords": [
     "n8n-community-node-package"
