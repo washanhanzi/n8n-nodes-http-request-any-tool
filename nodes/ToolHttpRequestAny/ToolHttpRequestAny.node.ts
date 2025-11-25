@@ -16,6 +16,7 @@ import { N8nTool } from './n8nTool';
 
 import {
 	authenticationProperties,
+	errorHandlingProperties,
 	jsonInput,
 	optimizeResponseProperties,
 	parametersCollection,
@@ -244,6 +245,7 @@ export class ToolHttpRequestAny implements INodeType {
 			//----------------------------------------------------------------
 			placeholderDefinitionsCollection,
 			...optimizeResponseProperties,
+			...errorHandlingProperties,
 		],
 	};
 
@@ -304,6 +306,15 @@ export class ToolHttpRequestAny implements INodeType {
 
 		const httpRequest = await configureHttpRequestFunction(this, authentication, itemIndex);
 		const optimizeResponse = configureResponseOptimizer(this, itemIndex);
+
+		const returnCustomDataOnError = this.getNodeParameter(
+			'returnCustomDataOnError',
+			itemIndex,
+			false,
+		) as boolean;
+		const customErrorResponse = returnCustomDataOnError
+			? (this.getNodeParameter('customErrorResponse', itemIndex, '{}') as string)
+			: undefined;
 
 		const rawRequestOptions: { [key: string]: string } = {
 			qs: '',
@@ -391,13 +402,14 @@ export class ToolHttpRequestAny implements INodeType {
 
 		const func = configureToolFunction(
 			this,
-		itemIndex,
-		toolParameters,
-		requestOptions,
-		rawRequestOptions,
-		httpRequest,
-		optimizeResponse,
-	);
+			itemIndex,
+			toolParameters,
+			requestOptions,
+			rawRequestOptions,
+			httpRequest,
+			optimizeResponse,
+			customErrorResponse,
+		);
 
 		const description = prepareToolDescription(toolDescription, toolParameters);
 		const schema = makeToolInputSchema(toolParameters);

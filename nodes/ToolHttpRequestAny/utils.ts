@@ -576,6 +576,7 @@ export const configureToolFunction = (
 	rawRequestOptions: { [key: string]: string },
 	httpRequest: (options: IHttpRequestOptions) => Promise<any>,
 	optimizeResponse: (response: string) => string,
+	customErrorResponse?: string,
 ) => {
 	return async (query: string | IDataObject): Promise<string> => {
 		const { index } = ctx.addInputData(NodeConnectionTypes.AiTool, [[{ json: { query } }]]);
@@ -759,8 +760,12 @@ export const configureToolFunction = (
 			try {
 				fullResponse = await httpRequest(options);
 			} catch (error) {
-				const httpCode = (error as NodeApiError).httpCode;
-				response = `${httpCode ? `HTTP ${httpCode} ` : ''}There was an error: "${error.message}"`;
+				if (customErrorResponse !== undefined) {
+					response = customErrorResponse;
+				} else {
+					const httpCode = (error as NodeApiError).httpCode;
+					response = `${httpCode ? `HTTP ${httpCode} ` : ''}There was an error: "${error.message}"`;
+				}
 			}
 
 			if (!response) {
@@ -772,7 +777,11 @@ export const configureToolFunction = (
 
 					response = optimizeResponse(fullResponse.body ?? fullResponse);
 				} catch (error) {
-					response = `There was an error: "${error.message}"`;
+					if (customErrorResponse !== undefined) {
+						response = customErrorResponse;
+					} else {
+						response = `There was an error: "${error.message}"`;
+					}
 				}
 			}
 		}

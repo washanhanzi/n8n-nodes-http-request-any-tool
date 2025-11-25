@@ -272,7 +272,7 @@ describe('ToolHttpRequestAny', () => {
 
 			const { response } = await httpTool.supplyData.call(executeFunctions, 0)
 
-			const res = await (response as N8nTool).invoke({ q: 'test' })
+			await (response as N8nTool).invoke({ q: 'test' })
 			expect(helpers.httpRequest).toHaveBeenCalledWith(
 				expect.objectContaining({
 					qs: expect.objectContaining({
@@ -330,7 +330,7 @@ describe('ToolHttpRequestAny', () => {
 
 			const { response } = await httpTool.supplyData.call(executeFunctions, 0)
 
-			const res = await (response as N8nTool).invoke({ query: 'test' })
+			await (response as N8nTool).invoke({ query: 'test' })
 			expect(helpers.httpRequest).toHaveBeenCalledWith(
 				expect.objectContaining({
 					qs: expect.objectContaining({
@@ -459,7 +459,7 @@ describe('ToolHttpRequestAny', () => {
 
 			const { response } = await httpTool.supplyData.call(executeFunctions, 0)
 
-			const res = await (response as N8nTool).invoke({ name: 'test-resource' })
+			await (response as N8nTool).invoke({ name: 'test-resource' })
 			expect(helpers.httpRequest).toHaveBeenCalledWith(
 				expect.objectContaining({
 					body: expect.objectContaining({
@@ -1008,6 +1008,8 @@ describe('ToolHttpRequestAny', () => {
 							return []
 						case 'optimizeResponse':
 							return false
+						case 'returnCustomDataOnError':
+							return false
 						default:
 							return fallback
 					}
@@ -1019,6 +1021,63 @@ describe('ToolHttpRequestAny', () => {
 
 			expect(res).toContain('HTTP 500')
 			expect(res).toContain('Connection refused')
+		})
+
+		it('should return custom JSON data on HTTP error when returnCustomDataOnError is enabled', async () => {
+			const error = new Error('Not Found') as any
+			error.httpCode = 404
+
+			helpers.httpRequest.mockRejectedValue(error)
+
+			const customErrorData = { status: 'error', code: 404, message: 'Resource not found' }
+
+			executeFunctions.getNodeParameter.mockImplementation(
+				(paramName: string, _: any, fallback: any) => {
+					switch (paramName) {
+						case 'toolDescription':
+							return 'Test'
+						case 'method':
+							return 'GET'
+						case 'url':
+							return 'https://api.example.com/resource'
+						case 'authentication':
+							return 'none'
+						case 'sendQuery':
+							return false
+						case 'sendHeaders':
+							return false
+						case 'sendBody':
+							return false
+						case 'placeholderDefinitions.values':
+							return []
+						case 'optimizeResponse':
+							return false
+						case 'returnCustomDataOnError':
+							return true
+						case 'customErrorResponse':
+							return JSON.stringify(customErrorData)
+						default:
+							return fallback
+					}
+				},
+			)
+
+			const { response } = await httpTool.supplyData.call(executeFunctions, 0)
+			const res = await (response as N8nTool).invoke({})
+
+			expect(res).toEqual(JSON.stringify(customErrorData))
+			expect(res).not.toContain('HTTP 404')
+			expect(res).not.toContain('Not Found')
+
+			// Verify that addOutputData was called with successful response format (not an error)
+			// This ensures the response is treated as a 200 OK, not an error
+			expect(executeFunctions.addOutputData).toHaveBeenCalledTimes(1)
+			const [connectionType, index, outputData] = executeFunctions.addOutputData.mock.calls[0]
+			expect(connectionType).toBe(NodeConnectionTypes.AiTool)
+			expect(index).toBe(0)
+			// Should NOT be an Error instance - should be successful response format
+			expect(outputData).not.toBeInstanceOf(Error)
+			expect(outputData).toEqual([[{ json: { response: JSON.stringify(customErrorData) } }]])
 		})
 	})
 

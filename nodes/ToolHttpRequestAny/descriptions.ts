@@ -224,6 +224,30 @@ export const authenticationProperties: INodeProperties[] = [
 	},
 ];
 
+export const errorHandlingProperties: INodeProperties[] = [
+	{
+		displayName: 'Return Custom Data on Error',
+		name: 'returnCustomDataOnError',
+		type: 'boolean',
+		default: false,
+		noDataExpression: true,
+		description:
+			'Whether to return custom JSON data instead of error messages when the request fails',
+	},
+	{
+		displayName: 'Custom Error Response (JSON)',
+		name: 'customErrorResponse',
+		type: 'json',
+		default: '{}',
+		displayOptions: {
+			show: {
+				returnCustomDataOnError: [true],
+			},
+		},
+		description: 'The JSON data to return when the request fails',
+	},
+];
+
 export const optimizeResponseProperties: INodeProperties[] = [
 	{
 		displayName: 'Optimize Response',
