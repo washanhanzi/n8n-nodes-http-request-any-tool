@@ -1,7 +1,7 @@
 import { Readability } from '@mozilla/readability';
 import * as cheerio from 'cheerio';
 import { convert } from 'html-to-text';
-import { JSDOM } from 'jsdom';
+import { parseHTML } from 'linkedom';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import unset from 'lodash/unset';
@@ -110,8 +110,8 @@ const textOptimizer = (
 			);
 		}
 
-		const dom = new JSDOM(response);
-		const article = new Readability(dom.window.document, {
+		const { document } = parseHTML(response);
+		const article = new Readability(document, {
 			keepClasses: true,
 		}).parse();
 
