@@ -55,6 +55,7 @@
     "@types/jest": "^29.5.12",
     "@types/jsdom": "^21.1.7",
     "@types/lodash": "^4.17.20",
+    "@typescript-eslint/eslint-plugin": "~8.32.1",
     "@typescript-eslint/parser": "~8.32.0",
     "eslint": "^8.57.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
