@@ -589,6 +589,42 @@ export const mainProperties: INodeProperties[] = [
 		placeholder: '',
 	},
 	{
+		displayName: 'On Error',
+		name: 'onError',
+		type: 'options',
+		default: 'returnErrorJson',
+		options: [
+			{
+				name: 'Return Error JSON',
+				value: 'returnErrorJson',
+				description: 'Return error details as JSON with OK status',
+			},
+			{
+				name: 'Return Custom JSON',
+				value: 'customJson',
+				description: 'Return a custom JSON payload with OK status',
+			},
+			{
+				name: 'Throw Error',
+				value: 'throwError',
+				description: 'Throw an error and stop execution',
+			},
+		],
+		description: 'What to do when the HTTP request fails',
+	},
+	{
+		displayName: 'Custom Error JSON',
+		name: 'customErrorJson',
+		type: 'json',
+		default: '{}',
+		displayOptions: {
+			show: {
+				onError: ['customJson'],
+			},
+		},
+		description: 'The JSON payload to return when an error occurs',
+	},
+	{
 		displayName: 'Options',
 		name: 'options',
 		type: 'collection',
@@ -670,18 +706,6 @@ export const mainProperties: INodeProperties[] = [
 				],
 			},
 			{
-				displayName: 'Custom Error JSON',
-				name: 'customErrorJson',
-				type: 'json',
-				default: '{}',
-				displayOptions: {
-					show: {
-						onError: ['customJson'],
-					},
-				},
-				description: 'The JSON to return when an error occurs',
-			},
-			{
 				displayName: 'Ignore SSL Issues (Insecure)',
 				name: 'allowUnauthorizedCerts',
 				type: 'boolean',
@@ -697,23 +721,6 @@ export const mainProperties: INodeProperties[] = [
 				type: 'boolean',
 				default: true,
 				description: 'Whether to lowercase header names',
-			},
-			{
-				displayName: 'On Error',
-				name: 'onError',
-				type: 'options',
-				default: 'default',
-				options: [
-					{
-						name: 'Default (Error)',
-						value: 'default',
-					},
-					{
-						name: 'Return Custom JSON',
-						value: 'customJson',
-					},
-				],
-				description: 'What to do when an error occurs',
 			},
 			{
 				displayName: 'Pagination',

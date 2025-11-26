@@ -831,10 +831,8 @@ export class HttpRequestAnyTool implements INodeType {
 			try {
 				responseData = promisesResponses.shift();
 
-				const { onError, customErrorJson } = this.getNodeParameter('options', itemIndex, {}) as {
-					onError: 'default' | 'customJson';
-					customErrorJson: string;
-				};
+				const onError = this.getNodeParameter('onError', itemIndex, 'returnErrorJson') as 'returnErrorJson' | 'customJson' | 'throwError';
+				const customErrorJson = this.getNodeParameter('customErrorJson', itemIndex, '{}') as string;
 
 				if (errorItems[itemIndex]) {
 					if (onError === 'customJson') {
@@ -849,6 +847,7 @@ export class HttpRequestAnyTool implements INodeType {
 						continue;
 					}
 
+					// Default: returnErrorJson - return error details with OK status
 					returnItems.push({
 						json: { error: errorItems[itemIndex] },
 						pairedItem: { item: itemIndex },
@@ -869,11 +868,14 @@ export class HttpRequestAnyTool implements INodeType {
 						});
 						continue;
 					}
+
 					if (responseData.reason.statusCode === 429) {
 						responseData.reason.message =
 							"Try spacing your requests out using the batching settings under 'Options'";
 					}
-					if (!this.continueOnFail()) {
+
+					// throwError: throw an error and stop execution
+					if (onError === 'throwError') {
 						if (autoDetectResponseFormat && responseData.reason.error instanceof Buffer) {
 							responseData.reason.error = Buffer.from(
 								responseData.reason.error as Buffer,
@@ -894,19 +896,19 @@ export class HttpRequestAnyTool implements INodeType {
 						set(error, 'context.request', sanitizedRequests[itemIndex]);
 
 						throw error;
-					} else {
-						removeCircularRefs(responseData.reason as JsonObject);
-						// Return the actual reason as error
-						returnItems.push({
-							json: {
-								error: responseData.reason,
-							},
-							pairedItem: {
-								item: itemIndex,
-							},
-						});
-						continue;
 					}
+
+					// Default: returnErrorJson - return error details with OK status
+					removeCircularRefs(responseData.reason as JsonObject);
+					returnItems.push({
+						json: {
+							error: responseData.reason,
+						},
+						pairedItem: {
+							item: itemIndex,
+						},
+					});
+					continue;
 				}
 
 				let responses: any[];

@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-http-request-any-tool",
-  "version": "0.9.4",
+  "version": "0.9.6",
   "description": "a n8n http request tool node support always ok",
   "keywords": [
     "n8n-community-node-package"
