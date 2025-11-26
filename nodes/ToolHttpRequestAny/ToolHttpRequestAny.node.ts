@@ -413,7 +413,12 @@ export class ToolHttpRequestAny implements INodeType {
 
 		const description = prepareToolDescription(toolDescription, toolParameters);
 		const schema = makeToolInputSchema(toolParameters);
-		const tool = new N8nTool({ name, description, func, schema });
+		const tool = new N8nTool(this, {
+			name,
+			description,
+			func: func as (input: unknown) => Promise<string>,
+			schema,
+		});
 
 		return {
 			response: tool,

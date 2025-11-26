@@ -232,7 +232,7 @@ export const errorHandlingProperties: INodeProperties[] = [
 		default: false,
 		noDataExpression: true,
 		description:
-			'Whether to return custom JSON data instead of error messages when the request fails',
+			'Whether to return custom JSON data instead of error messages when any error occurs (input validation, HTTP errors, response processing, etc.)',
 	},
 	{
 		displayName: 'Custom Error Response (JSON)',
@@ -244,7 +244,7 @@ export const errorHandlingProperties: INodeProperties[] = [
 				returnCustomDataOnError: [true],
 			},
 		},
-		description: 'The JSON data to return when the request fails',
+		description: 'The JSON data to return when any error occurs during tool execution',
 	},
 ];
 

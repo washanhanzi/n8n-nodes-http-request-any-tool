@@ -22,8 +22,7 @@ import type {
 	SendIn,
 	ToolParameter,
 } from './interfaces';
-
-export type DynamicZodObject = z.ZodObject<Record<string, z.ZodTypeAny>>;
+import type { ZodObjectAny } from './n8nTool';
 
 const genericCredentialRequest = async (ctx: ISupplyDataFunctions, itemIndex: number) => {
 	const genericType = ctx.getNodeParameter('genericAuthType', itemIndex) as string;
@@ -705,26 +704,15 @@ export const configureToolFunction = (
 
 				for (const [key, value] of Object.entries(clonedRawRequestOptions)) {
 					if (value) {
-						let parsedValue;
 						try {
-							parsedValue = jsonParse<IDataObject>(value);
+							const parsedValue = jsonParse<IDataObject>(value, { acceptJSObject: true });
+							options[key as 'qs' | 'headers' | 'body'] = parsedValue;
 						} catch (error) {
-							let recoveredData = '';
-							try {
-								recoveredData = value
-									.replace(/'/g, '"') // Replace single quotes with double quotes
-									.replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2":') // Wrap keys in double quotes
-									.replace(/,\s*([\]}])/g, '$1') // Remove trailing commas from objects
-									.replace(/,+$/, ''); // Remove trailing comma
-								parsedValue = jsonParse<IDataObject>(recoveredData);
-							} catch (err) {
-								throw new NodeOperationError(
-									ctx.getNode(),
-									`Could not replace placeholders in ${key}: ${error.message}`,
-								);
-							}
+							throw new NodeOperationError(
+								ctx.getNode(),
+								`Could not replace placeholders in ${key}: ${(error as Error).message}`,
+							);
 						}
-						options[key as 'qs' | 'headers' | 'body'] = parsedValue;
 					}
 				}
 			}
@@ -753,7 +741,11 @@ export const configureToolFunction = (
 				});
 			}
 
-			response = errorMessage;
+			if (customErrorResponse !== undefined) {
+				response = customErrorResponse;
+			} else {
+				response = errorMessage;
+			}
 		}
 
 		if (options) {
@@ -790,7 +782,11 @@ export const configureToolFunction = (
 			executionError = new NodeOperationError(ctx.getNode(), 'Wrong output type returned', {
 				description: `The response property should be a string, but it is an ${typeof response}`,
 			});
-			response = `There was an error: "${executionError.message}"`;
+			if (customErrorResponse !== undefined) {
+				response = customErrorResponse;
+			} else {
+				response = `There was an error: "${executionError.message}"`;
+			}
 		}
 
 		if (executionError) {
@@ -829,7 +825,7 @@ function makeParameterZodSchema(parameter: ToolParameter) {
 	return schema;
 }
 
-export function makeToolInputSchema(parameters: ToolParameter[]): DynamicZodObject {
+export function makeToolInputSchema(parameters: ToolParameter[]): ZodObjectAny {
 	const schemaEntries = parameters.map((parameter) => [
 		parameter.name,
 		makeParameterZodSchema(parameter),

@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-http-request-any-tool",
-  "version": "0.2.0",
+  "version": "0.8.0",
   "description": "Custom HTTP Request tool node that accepts any default parameter values.",
   "keywords": [
     "n8n-community-node-package"
@@ -41,11 +41,12 @@
     ]
   },
   "dependencies": {
-    "@langchain/core": "^0.2.32",
+    "@langchain/core": "^0.3.58",
     "@mozilla/readability": "^0.6.0",
     "cheerio": "^1.0.0-rc.12",
     "html-to-text": "^9.0.5",
     "jsdom": "^24.0.0",
+    "langchain": "^0.3.33",
     "lodash": "^4.17.21",
     "zod": "^3.23.8"
   },
